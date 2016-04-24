@@ -3,7 +3,6 @@ package cloud
 import (
 	"github.com/docker/libcompose/docker"
 	"github.com/docker/libcompose/project"
-	"golang.org/x/net/context"
 )
 
 type Clouder interface {
@@ -24,6 +23,7 @@ func (c *clouder) Start() (err error) {
 	}
 
 	//set docker env
+	//swarmMaster := c.Cluster().SwarmMaster()
 
 	//run
 	project, err := docker.NewProject(&docker.Context{
@@ -42,12 +42,14 @@ func (c *clouder) Start() (err error) {
 }
 
 func (c *clouder) Stop() (err error) {
+
 	//stop
 	return
 }
 
 func NewClouder() (c Clouder) {
-	ctx := context.Background()
-	d := NewDeployer(ctx)
-	return &clouder{Deployer: d}
+	return nil
+	// ctx := context.Background()
+	// d := NewDeployer(ctx)
+	// return &clouder{Deployer: d}
 }
