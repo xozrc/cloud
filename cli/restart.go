@@ -9,19 +9,19 @@ import (
 const ()
 
 var (
-	upCmd = cli.Command{
-		Name:        "up",
-		Usage:       "starts and provisions the cloud environment",
+	restartCmd = cli.Command{
+		Name:        "restart",
+		Usage:       "restart the cloud environment",
 		Description: "",
-		Action:      up,
+		Action:      restart,
 	}
 )
 
 func init() {
-	appendCmd(upCmd)
+	appendCmd(restartCmd)
 }
 
-func up(c *cli.Context) {
+func restart(c *cli.Context) {
 	tc := cloud.NewClouder()
 	if err := tc.Load(); err != nil {
 		log.Fatalln(err)

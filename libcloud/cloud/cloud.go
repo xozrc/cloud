@@ -1,43 +1,37 @@
 package cloud
 
-import (
-	"github.com/docker/libcompose/docker"
-	"github.com/docker/libcompose/project"
-)
+import "github.com/xozrc/cloud/libcloud/config"
 
 type Clouder interface {
+	Load() error
 	Start() error
 	Stop() error
+	Destroy() error
 }
 
 type clouder struct {
-	Deployer
+	Cluster
+	composeFiles []string
 }
 
 func (c *clouder) Start() (err error) {
-
-	//check
-	err = c.Deploy()
-	if err != nil {
-		return
-	}
 
 	//set docker env
 	//swarmMaster := c.Cluster().SwarmMaster()
 
 	//run
-	project, err := docker.NewProject(&docker.Context{
-		Context: project.Context{
-			ComposeFiles: []string{"docker-compose.yml"},
-			ProjectName:  "my-compose",
-		},
-	})
+	// project, err := docker.NewProject(&docker.Context{
+	// 	Context: project.Context{
+	// 		ComposeFiles: []string{"docker-compose.yml"},
+	// 		ProjectName:  "my-compose",
+	// 	},
+	// })
 
-	if err != nil {
-		return
-	}
+	// if err != nil {
+	// 	return
+	// }
 
-	err = project.Up()
+	// err = project.Up()
 	return
 }
 
@@ -47,9 +41,13 @@ func (c *clouder) Stop() (err error) {
 	return
 }
 
-func NewClouder() (c Clouder) {
-	return nil
-	// ctx := context.Background()
-	// d := NewDeployer(ctx)
-	// return &clouder{Deployer: d}
+func NewClouder(cfg *config.CloudConfig) (c Clouder, err error) {
+	tc := &clouder{}
+	tc.Cluster, err = NewCluster(cfg.Name, cfg.ComposeFiles, cfg.ClusterStore)
+	if err != nil {
+		return
+	}
+	tc.composeFiles = cfg.ComposeFiles
+	c = tc
+	return
 }

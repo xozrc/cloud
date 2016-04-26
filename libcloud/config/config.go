@@ -1,19 +1,36 @@
 package config
 
+import (
+	"io/ioutil"
+	"os"
+
+	"github.com/ghodss/yaml"
+)
+
 const (
-	CloudConfigFile = "CloudConfig.yml"
+	DefaultCloudConfigFile = "CloudConfig.yml"
 )
 
 type CloudConfig struct {
-	Driver       string   `yaml:"driver"`
-	NodesNum     int      `yaml:"nodesNum"`
-	ClusterStore string   `yaml:"cluterStore"`
+	Name         string   `yaml:"name"`
+	ClusterStore string   `yaml:"ClusterStore"`
+	Nodes        []string `yaml:"nodes"`
 	ComposeFiles []string `yaml:"composeFiles"`
 }
 
-type ClusterConfig struct {
-}
+func NewCloudConfig(configPath string) (cc *CloudConfig, err error) {
+	f, err := os.Open(configPath)
+	if err != nil {
+		return
+	}
+	defer f.Close()
 
-func NewClusterConfig(clusterPath string) (cc *ClusterConfig, err error) {
+	content, err := ioutil.ReadAll(f)
+	if err != nil {
+		return
+	}
+
+	cc = &CloudConfig{}
+	err = yaml.Unmarshal(content, cc)
 	return
 }
