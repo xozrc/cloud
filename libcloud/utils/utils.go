@@ -10,7 +10,7 @@ import (
 var (
 	baseDir = os.Getenv("MACHINE_STORAGE_PATH")
 
-	defaultDeployPath   = ".deploy"
+	defaultDeployPath   = ".xocloud"
 	defaultMachinesPath = "machines"
 	defaultCertPath     = "certs"
 )

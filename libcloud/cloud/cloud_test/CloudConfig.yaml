@@ -1,0 +1,7 @@
+name: test
+nodes:
+    - ./nodes/master.yaml
+    - ./nodes/node1.yaml
+    - ./nodes/node2.yaml
+composeFiles:
+    - ./compose.yml

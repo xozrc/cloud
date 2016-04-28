@@ -1,3 +1,20 @@
-Name: node1
-Driver: virtualbox
+name: node1
+driver: virtualbox
+swarm:
+    swarm: true
+    host: "tcp://0.0.0.0:3376"
+    image: "swarm:latest"
+    strategy: spread
+    discovery: "consul://192.168.99.101:8500/"
+    master: false
+    isExperimental: false
+    # it seems no nesscerray
+    #address:
+engine:
+    installURL: "https://get.docker.com"
+    arbitraryFlags:  
+        - "cluster-store=consul://192.168.99.101:8500/"
+        - "cluster-advertise=eth1:2376"
+    storageDriver: aufs
+
 

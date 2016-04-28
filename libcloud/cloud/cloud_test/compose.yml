@@ -1,0 +1,12 @@
+redis:
+    image: redis
+rabbitmq:
+    image: "rabbitmq:management"
+    ports:
+        - "5672:5672"
+        - "5671:5671"
+        - "4369:4369"
+        - "25672:25672"
+        - "15672:15672"
+
+

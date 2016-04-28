@@ -13,7 +13,6 @@ const (
 
 type CloudConfig struct {
 	Name         string   `yaml:"name"`
-	ClusterStore string   `yaml:"ClusterStore"`
 	Nodes        []string `yaml:"nodes"`
 	ComposeFiles []string `yaml:"composeFiles"`
 }

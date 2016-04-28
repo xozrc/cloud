@@ -3,72 +3,78 @@ package cloud
 import (
 	"fmt"
 
-	"github.com/docker/machine/libmachine/auth"
+	log "github.com/Sirupsen/logrus"
 	"github.com/docker/machine/libmachine/host"
 	cloudutils "github.com/xozrc/cloud/libcloud/utils"
-	deployConfig "github.com/xozrc/deploy/config"
-	"github.com/xozrc/deploy/libdeploy"
-)
+	"github.com/xozrc/deploy"
 
-var ()
+	deployConfig "github.com/xozrc/deploy/config"
+)
 
 type Cluster interface {
 	Load() error
 	ClusterName() string
 	SwarmMaster() *host.Host
-	Hosts() []*host.Host
-	AppendHost(h *host.Host) error
+	Nodes() []*host.Host
 	Destroy() error
 }
 
 type cluster struct {
-	name         string
-	hosts        []*host.Host
-	swarmMaster  *host.Host
-	nodes        []string
-	clusterStore string
+	name        string
+	nodes       []*host.Host
+	swarmMaster *host.Host
+	nodesFile   []string
 }
 
 func (c *cluster) Load() error {
+	log.Infoln("trying to load cluster nodes")
 
-	for _, node := range c.nodes {
+	for _, nodeFile := range c.nodesFile {
 		//nodeName
-		mc, err := deployConfig.MachineConfigFromFile(node)
+		nc, err := deployConfig.NodeConfigFromFile(nodeFile)
 		if err != nil {
 			return err
 		}
 
-		mc.Name = c.ClusterName() + "-" + mc.Name
-		if mc.Auth == nil {
-			mc.Auth = &auth.Options{}
+		//rewrite cluster config
+		nc.StorePath = cloudutils.GetBaseDir()
+		nc.Name = c.ClusterName() + "-" + nc.Name
+
+		//config swarm
+		if nc.Swarm == nil {
+			nc.Swarm = &deployConfig.SwarmConfig{}
+			nc.Swarm.Swarm = true
 		}
-		mc.Auth.StorePath = cloudutils.GetBaseDir()
-		h, err := libdeploy.Deploy(mc)
+
+		h, err := deploy.Deploy(nc)
+
+		//fix: if need to ignore error
 		if err != nil {
 			return err
 		}
-		err = c.AppendHost(h)
+
+		err = c.appendHost(h)
+		//fix: if need to ignore error
 		if err != nil {
 			return err
 		}
 	}
+
 	return nil
 }
 
 func (c *cluster) Destroy() error {
+	log.Infoln("trying to destroy cluster nodes")
 
-	for _, node := range c.nodes {
+	for _, nodeFile := range c.nodesFile {
 		//nodeName
-		mc, err := deployConfig.MachineConfigFromFile(node)
+		nc, err := deployConfig.NodeConfigFromFile(nodeFile)
 		if err != nil {
 			return err
 		}
-		if mc.Auth == nil {
-			mc.Auth = &auth.Options{}
-		}
-		mc.Auth.StorePath = cloudutils.GetBaseDir()
-		mc.Name = c.ClusterName() + "-" + mc.Name
-		libdeploy.Undeploy(mc)
+		nc.StorePath = cloudutils.GetBaseDir()
+		nc.Name = c.ClusterName() + "-" + nc.Name
+		deploy.Undeploy(nc)
 	}
 	return nil
 }
@@ -77,41 +83,34 @@ func (c *cluster) ClusterName() string {
 	return c.name
 }
 
-func (c *cluster) Hosts() []*host.Host {
-	return c.hosts
+func (c *cluster) Nodes() []*host.Host {
+	return c.nodes
 }
 
 func (c *cluster) SwarmMaster() *host.Host {
 	return c.swarmMaster
 }
 
-func (c *cluster) AppendHost(h *host.Host) (err error) {
-	if h.HostOptions == nil || h.HostOptions.SwarmOptions == nil {
-		return
+func (c *cluster) appendHost(n *host.Host) (err error) {
+
+	if n.HostOptions.SwarmOptions == nil || !n.HostOptions.SwarmOptions.IsSwarm {
+		return fmt.Errorf("cluster should be swarm")
 	}
 
-	if !h.HostOptions.SwarmOptions.IsSwarm {
-		//err = fmt.Errorf("host [%s] should be swarm", h.Name)
-		return
+	if n.HostOptions.SwarmOptions.Master {
+		// err = fmt.Errorf("cluster should only one master")
+		// return err
+		c.swarmMaster = n
 	}
 
-	if h.HostOptions.SwarmOptions.Master {
-		if c.SwarmMaster() != nil {
-			err = fmt.Errorf("cluster should only one master")
-			return err
-		}
-		c.swarmMaster = h
-	}
-
-	c.hosts = append(c.hosts, h)
+	c.nodes = append(c.nodes, n)
 	return
 }
 
-func NewCluster(clusterName string, nodes []string, clusterStore string) (c Cluster, err error) {
+func NewCluster(clusterName string, nodes []string) (c Cluster, err error) {
 	tc := &cluster{}
 	tc.name = clusterName
-	tc.nodes = nodes
-	tc.clusterStore = clusterStore
+	tc.nodesFile = nodes
 	c = tc
 	return
 }

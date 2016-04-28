@@ -2,27 +2,44 @@ package cloud_test
 
 import (
 	"testing"
-)
-import (
+
 	"github.com/stretchr/testify/assert"
 	"github.com/xozrc/cloud/libcloud/cloud"
+	"github.com/xozrc/cloud/libcloud/config"
 )
 
 func TestNewCloud(t *testing.T) {
+	tcfg, err := config.NewCloudConfig("./CloudConfig.yaml")
+
+	if !assert.NoError(t, err, "") {
+		return
+	}
+	tc, err := cloud.NewClouder(tcfg)
+	if !assert.NoError(t, err, "") {
+		return
+	}
+	err = tc.Load()
+	if !assert.NoError(t, err, "") {
+		return
+	}
+
+	err = tc.Start()
+	if !assert.NoError(t, err, "") {
+		return
+	}
 
 }
 
 func TestNewCluster(t *testing.T) {
 	clusterName := "test"
 	nodes := []string{"./nodes/master.yaml", "./nodes/node1.yaml", "./nodes/node2.yaml"}
-	clusterStore := "consul://192.168.99.101:8500/"
-	cls, err := cloud.NewCluster(clusterName, nodes, clusterStore)
+
+	cls, err := cloud.NewCluster(clusterName, nodes)
 	if !assert.NoError(t, err, "") {
 		return
 	}
 
 	err = cls.Load()
-	defer cls.Destroy()
-	assert.NoError(t, err, "")
 
+	assert.NoError(t, err, "")
 }
