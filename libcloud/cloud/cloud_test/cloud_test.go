@@ -24,6 +24,7 @@ func TestNewCloud(t *testing.T) {
 	}
 
 	err = tc.Start()
+
 	if !assert.NoError(t, err, "") {
 		return
 	}

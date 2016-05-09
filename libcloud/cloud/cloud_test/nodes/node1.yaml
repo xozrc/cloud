@@ -16,5 +16,6 @@ engine:
         - "cluster-store=consul://192.168.99.101:8500/"
         - "cluster-advertise=eth1:2376"
     storageDriver: aufs
-
+    registryMirror: 
+        - "https://qca2pqmt.mirror.aliyuncs.com"
 
