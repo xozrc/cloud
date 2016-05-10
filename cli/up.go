@@ -3,7 +3,6 @@ package cli
 import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/codegangsta/cli"
-	"github.com/xozrc/cloud/libcloud/cloud"
 )
 
 const ()
@@ -22,7 +21,10 @@ func init() {
 }
 
 func up(c *cli.Context) {
-	tc := cloud.NewClouder()
+	tc, err := clouderFromFile(cloudFileVal)
+	if err != nil {
+		log.Fatalln(err)
+	}
 	if err := tc.Load(); err != nil {
 		log.Fatalln(err)
 	}

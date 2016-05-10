@@ -5,7 +5,7 @@ import (
 	"path"
 
 	"github.com/codegangsta/cli"
-	"github.com/xozrc/discovery/version"
+	"github.com/xozrc/cloud/version"
 )
 
 //env
@@ -16,6 +16,7 @@ const (
 	tlsCaCertEnv     = "XO_CLOUD_TLS_CA_CERT"
 	tlsClientKeyEnv  = "XO_CLOUD_TLS_CLIENT_KEY"
 	tlsClientCertEnv = "XO_CLOUD_TLS_CLIENT_CERT"
+	cloudFileEnv     = "XO_CLOUD_FILE"
 )
 
 //flag variables
@@ -26,6 +27,7 @@ var (
 	tlsCaCertVal     string = ""
 	tlsClientKeyVal  string = ""
 	tlsClientCertVal string = ""
+	cloudFileVal     string = "xo-cloud.yml"
 )
 
 //flags
@@ -76,6 +78,14 @@ var (
 		Destination: &tlsClientCertVal,
 		EnvVar:      tlsClientCertEnv,
 	}
+
+	cloudFileFlag = cli.StringFlag{
+		Name:        "file,f",
+		Usage:       "cloud config file",
+		Value:       cloudFileVal,
+		Destination: &cloudFileVal,
+		EnvVar:      cloudFileEnv,
+	}
 )
 
 func Run() {
@@ -94,6 +104,7 @@ func Run() {
 		tlsCaCertFlag,
 		tlsClientKeyFlag,
 		tlsClientCertFlag,
+		cloudFileFlag,
 	}
 
 	app.Commands = commands

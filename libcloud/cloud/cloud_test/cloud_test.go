@@ -41,6 +41,6 @@ func TestNewCluster(t *testing.T) {
 	}
 
 	err = cls.Load()
-
+	defer cls.Destroy()
 	assert.NoError(t, err, "")
 }
