@@ -18,10 +18,12 @@ type Clouder interface {
 	Start() error
 	Stop() error
 	Destroy() error
+	Env() string
 }
 
 type clouder struct {
 	Cluster
+	env          string
 	composeFiles []string
 }
 
@@ -42,14 +44,14 @@ func (c *clouder) Start() (err error) {
 		return
 	}
 
-	log.Infoln("export DOCKER_TLS_VERIFY='1'")
+	c.env = c.env + "export DOCKER_TLS_VERIFY='1'\n"
 
 	tCertPath := tsm.AuthOptions().CertDir
 	if err = os.Setenv("DOCKER_CERT_PATH", tCertPath); err != nil {
 		return
 	}
 
-	log.Infoln("export DOCKER_CERT_PATH=" + tCertPath)
+	c.env = c.env + "export DOCKER_CERT_PATH=" + "'" + tCertPath + "'" + "\n"
 
 	tIP, err := h.Driver.GetIP()
 	if err != nil {
@@ -68,15 +70,16 @@ func (c *clouder) Start() (err error) {
 		return
 	}
 
-	log.Infoln("export DOCKER_HOST=" + th)
+	c.env = c.env + "export DOCKER_HOST=" + "'" + th + "'" + "\n"
 
 	tname := tsm.Name
 	if err = os.Setenv("DOCKER_MACHINE_NAME", tname); err != nil {
 		return
 	}
 
-	log.Infoln("export DOCKER_MACHINE_NAME=" + tname)
+	c.env = c.env + "export DOCKER_MACHINE_NAME=" + "'" + tname + "'" + "\n"
 
+	log.Info(c.env)
 	//run
 	project, err := docker.NewProject(&docker.Context{
 		Context: project.Context{
@@ -93,6 +96,10 @@ func (c *clouder) Start() (err error) {
 	return
 }
 
+func (c *clouder) Env() string {
+	return c.env
+}
+
 func (c *clouder) Stop() (err error) {
 
 	cloudName := c.ClusterName()
@@ -106,7 +113,7 @@ func (c *clouder) Stop() (err error) {
 		return
 	}
 
-	project.Down()
+	err = project.Down()
 	//stop
 	return
 }
