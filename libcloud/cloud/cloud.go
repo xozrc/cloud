@@ -6,8 +6,6 @@ import (
 	"strings"
 
 	log "github.com/Sirupsen/logrus"
-	"github.com/docker/libcompose/docker"
-	"github.com/docker/libcompose/project"
 	"github.com/docker/machine/libmachine"
 	"github.com/xozrc/cloud/libcloud/config"
 	cloudutils "github.com/xozrc/cloud/libcloud/utils"
@@ -81,18 +79,18 @@ func (c *clouder) Start() (err error) {
 
 	log.Info(c.env)
 	//run
-	project, err := docker.NewProject(&docker.Context{
-		Context: project.Context{
-			ComposeFiles: c.composeFiles,
-			ProjectName:  c.ClusterName(),
-		},
-	})
+	// project, err := docker.NewProject(&docker.Context{
+	// 	Context: project.Context{
+	// 		ComposeFiles: c.composeFiles,
+	// 		ProjectName:  c.ClusterName(),
+	// 	},
+	// })
 
-	if err != nil {
-		return
-	}
+	// if err != nil {
+	// 	return
+	// }
 
-	err = project.Up()
+	// err = project.Up()
 	return
 }
 
@@ -102,18 +100,18 @@ func (c *clouder) Env() string {
 
 func (c *clouder) Stop() (err error) {
 
-	cloudName := c.ClusterName()
-	project, err := docker.NewProject(&docker.Context{
-		Context: project.Context{
-			ComposeFiles: c.composeFiles,
-			ProjectName:  cloudName,
-		},
-	})
-	if err != nil {
-		return
-	}
+	//cloudName := c.ClusterName()
+	// project, err := docker.NewProject(&docker.Context{
+	// 	Context: project.Context{
+	// 		ComposeFiles: c.composeFiles,
+	// 		ProjectName:  cloudName,
+	// 	},
+	// })
+	// if err != nil {
+	// 	return
+	// }
 
-	err = project.Down()
+	// err = project.Down()
 	//stop
 	return
 }
