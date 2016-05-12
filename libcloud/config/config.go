@@ -7,14 +7,9 @@ import (
 	"github.com/ghodss/yaml"
 )
 
-const (
-	DefaultCloudConfigFile = "CloudConfig.yml"
-)
-
 type CloudConfig struct {
-	Name         string   `yaml:"name"`
-	Nodes        []string `yaml:"nodes"`
-	ComposeFiles []string `yaml:"composeFiles"`
+	Name  string   `yaml:"name"`
+	Nodes []string `yaml:"nodes"`
 }
 
 func NewCloudConfig(configPath string) (cc *CloudConfig, err error) {

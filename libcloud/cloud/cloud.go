@@ -122,7 +122,7 @@ func NewClouder(cfg *config.CloudConfig) (c Clouder, err error) {
 	if err != nil {
 		return
 	}
-	tc.composeFiles = cfg.ComposeFiles
+
 	c = tc
 	return
 }
